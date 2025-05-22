@@ -1,0 +1,73 @@
+import java.util.*;
+
+public class MergeOrderSorter {
+
+    static Map<String, Integer> priorityMap = Map.of(
+        "Express", 1,
+        "Standard", 2,
+        "Delayed", 3
+    );
+    static Map<Integer, String> reverseMap = Map.of(
+        1, "Express",
+        2, "Standard",
+        3, "Delayed"
+    );
+
+    static int[] mapToPriorities(String[] orders) {
+        int[] mapped = new int[orders.length];
+        for (int i = 0; i < orders.length; i++) {
+            mapped[i] = priorityMap.get(orders[i]);
+        }
+        return mapped;
+    }
+
+    static String[] mapToLabels(int[] sorted) {
+        String[] result = new String[sorted.length];
+        for (int i = 0; i < sorted.length; i++) {
+            result[i] = reverseMap.get(sorted[i]);
+        }
+        return result;
+    }
+
+    static void mergeSort(int[] arr, int left, int right) {
+        if (left < right) {
+            int mid = (left + right) / 2;
+            mergeSort(arr, left, mid);
+            mergeSort(arr, mid + 1, right);
+            merge(arr, left, mid, right);
+        }
+    }
+
+    static void merge(int[] arr, int left, int mid, int right) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+
+        int[] L = new int[n1];
+        int[] R = new int[n2];
+
+        for (int i = 0; i < n1; i++) L[i] = arr[left + i];
+        for (int j = 0; j < n2; j++) R[j] = arr[mid + 1 + j];
+
+        int i = 0, j = 0, k = left;
+        while (i < n1 && j < n2) {
+            arr[k++] = (L[i] <= R[j]) ? L[i++] : R[j++];
+        }
+
+        while (i < n1) arr[k++] = L[i++];
+        while (j < n2) arr[k++] = R[j++];
+    }
+
+    public static void main(String[] args) {
+        String[] orders = {"Standard", "Express", "Delayed", "Express", "Standard", "Delayed"};
+        System.out.println("Before Sorting: " + Arrays.toString(orders));
+
+        int[] mapped = mapToPriorities(orders);
+        long start = System.nanoTime();
+        mergeSort(mapped, 0, mapped.length - 1);
+        long end = System.nanoTime();
+
+        String[] sorted = mapToLabels(mapped);
+        System.out.println("After Sorting:  " + Arrays.toString(sorted));
+        System.out.printf("Time Taken: %.3f ms%n", (end - start) / 1e6);
+    }
+}
