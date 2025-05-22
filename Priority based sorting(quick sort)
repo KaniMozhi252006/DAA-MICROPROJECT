@@ -1,0 +1,74 @@
+import java.util.*;
+
+public class OrderSorter {
+    static Map<String, Integer> priorityMap = new HashMap<>();
+    static Map<Integer, String> reverseMap = new HashMap<>();
+
+    static {
+        priorityMap.put("Express", 1);
+        priorityMap.put("Standard", 2);
+        priorityMap.put("Delayed", 3);
+
+        reverseMap.put(1, "Express");
+        reverseMap.put(2, "Standard");
+        reverseMap.put(3, "Delayed");
+    }
+
+    public static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            quickSort(arr, low, pi - 1);
+            quickSort(arr, pi + 1, high);
+        }
+    }
+
+    public static int partition(int[] arr, int low, int high) {
+        int pivot = arr[high], i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+                int temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+            }
+        }
+        int temp = arr[i + 1]; arr[i + 1] = arr[high]; arr[high] = temp;
+        return i + 1;
+    }
+
+    public static int[] mapToPriorities(String[] orders) {
+        int[] mapped = new int[orders.length];
+        for (int i = 0; i < orders.length; i++) {
+            mapped[i] = priorityMap.get(orders[i]);
+        }
+        return mapped;
+    }
+
+    public static String[] mapToLabels(int[] sorted) {
+        String[] result = new String[sorted.length];
+        for (int i = 0; i < sorted.length; i++) {
+            result[i] = reverseMap.get(sorted[i]);
+        }
+        return result;
+    }
+
+    public static void testQuickSort(String[] orders, String description) {
+        System.out.println("\n--- " + description + " ---");
+        System.out.println("Before Sorting: " + Arrays.toString(orders));
+        int[] mapped = mapToPriorities(orders);
+        long start = System.nanoTime();
+        quickSort(mapped, 0, mapped.length - 1);
+        long end = System.nanoTime();
+        String[] sorted = mapToLabels(mapped);
+        System.out.println("After Sorting: " + Arrays.toString(sorted));
+        System.out.printf("Time Taken: %.3f ms%n", (end - start) / 1e6);
+    }
+
+    public static void main(String[] args) {
+        String[] sortedOrders = {"Express", "Express", "Standard", "Standard", "Delayed"};
+        String[] reversedOrders = {"Delayed", "Delayed", "Standard", "Express", "Express"};
+        String[] randomOrders = {"Standard", "Express", "Delayed", "Express", "Delayed", "Standard"};
+
+        testQuickSort(sortedOrders, "Sorted Input");
+        testQuickSort(reversedOrders, "Reversed Input");
+        testQuickSort(randomOrders, "Random Input");
+    }
+}
